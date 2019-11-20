@@ -54,24 +54,64 @@ public class DatabaseConnectionHandler {
 			rollbackConnection();
 		}
 	}
-	public void viewtheNumofAvaliableVehicle(String vtname, String fromDate, Integer fromTime, String toDate, Integer toTime ) {
+	public void viewtheNumofAvaliableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
 		try {
-			System.out.println("lal"+fromDate);
-			System.out.println("lal"+toDate);
-			PreparedStatement ps = connection.prepareStatement(//"WITH" +
-					                                                "SELECT COUNT(*) AS revn FROM Reservations r1 WHERE r1.vtname = ? AND (r1.fromDate=TO_DATE(?,'DD-MON-YYYY') AND r1.fromTime=? AND r1.toDate=TO_DATE(?,'DD-MON-YYYY') AND r1.toTime=?) "); //AS temp" +
-//					                                                "SELECT COUNT(*)-temp.reven FROM Vehicles v, Reservations r " +
-//					                                                "WHERE v.vtname=? AND v.location=?");
-			ps.setString(1, vtname);
-			ps.setString(2,fromDate);
 
-			ps.setInt(3,fromTime);
-			ps.setString(4, toDate);
-			ps.setInt(5,toTime);
+
+//			PreparedStatement psV=connection.prepareStatement(" CREATE VIEW comDT AS(" +
+//					" SELECT r1.vtname AS vtname, TO_DATE(CONCAT(TO_CHAR(r1.fromDate,'DD-MON-YYYY'),r1.fromTime),'DD-MON-YYYY HH24:MI')AS fromDT, TO_DATE(CONCAT(TO_CHAR(r1.toDate,'DD-MON-YYYY'),r1.toTime),'DD-MON-YYYY HH24:MI')AS toDT "+
+//					" FROM Reservations r1) " );
+//			connection.commit();
+//			psV.close();
+			PreparedStatement ps = connection.prepareStatement(//"WITH" +
+
+																			"WITH bad(revn) AS( " +
+																			"SELECT r1.vtname" +
+																			" FROM Reservations r1 " +
+																			"WHERE  ((TO_DATE(NVL(?,'01-JAN-9999 00:00'),'DD-MON-YYYY HH24:MI') BETWEEN r1.fromDateTime AND r1.toDateTime) " +
+																			"OR (TO_DATE(NVL(?,'01-JAN-9999 00:00'),'DD-MON-YYYY HH24:MI') BETWEEN r1.fromDateTime AND r1.toDateTime))) " +
+
+																			//"r1.fromTime>? OR <TO_DATE(?,'DD-MON-YYYY') OR r1.toTime<?) "); //AS temp" +
+//					                                                        "SELECT temp.c-cb.revn " +
+//																					"FROM COUNT(*)," +
+																					"SELECT COUNT(*)AS c FROM Vehicles v WHERE (v.vtname=? OR ? is null ) AND (v.location=? OR ? is null ) AND v.vtname NOT IN (SELECT revn FROM bad b)");
+			if(vtname==null){
+			    ps.setNull(3, Types.VARCHAR);
+                ps.setNull(4, Types.VARCHAR);
+//                ps.setNull(5, Types.VARCHAR);
+//				ps.setNull(6, Types.VARCHAR);
+            }else{ps.setString(3, vtname);
+				ps.setString(4, vtname);}
+//				ps.setString(5, vtname);
+//				ps.setString(6, vtname);}
+
+
+            if(fromDateTime==null){
+                ps.setNull(1, Types.VARCHAR);
+            }else ps.setString(1,fromDateTime);
+
+
+            if(toDateTime==null){
+                ps.setNull(2, Types.VARCHAR);
+            }else ps.setString(2, toDateTime);
+
+			if(location==null){
+				ps.setNull(5, Types.VARCHAR);
+				ps.setNull(6, Types.VARCHAR);
+			}else {ps.setString(5, location);
+				ps.setString(6, location);
+			}
+
+
+
+
+			//ps.setInt(3,fromTime);
+
+		//	ps.setInt(5,toTime);
 
 			ResultSet rs= ps.executeQuery();
 			rs.next();
-			System.out.println(rs.getInt(1));
+			System.out.println("There are" +rs.getInt(1)+ "vehicles are available");
 
 			connection.commit();
 
