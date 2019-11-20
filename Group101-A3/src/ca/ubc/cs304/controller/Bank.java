@@ -7,8 +7,6 @@ import ca.ubc.cs304.model.BranchModel;
 import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.TerminalTransactions;
 
-import java.sql.Date;
-
 /**
  * This is the main controller class that will orchestrate everything.
  */
@@ -84,9 +82,11 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
     }
 
 	@Override
-	public void viewtheNumofAvaliableVehicle(String vtname, String fromDate, Integer fromTime, String toDate, Integer toTime) {
-		dbHandler.viewtheNumofAvaliableVehicle(vtname,fromDate,fromTime,toDate,toTime);
+	public void vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
+		dbHandler.viewtheNumofAvaliableVehicle(vtname, fromDateTime, toDateTime,location);
 	}
+
+
 
 	/**
 	 * TermainalTransactionsDelegate Implementation

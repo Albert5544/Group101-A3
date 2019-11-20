@@ -71,31 +71,36 @@ public class TerminalTransactions {
 	
 	private void handleDeleteOption() {
 		String vtname = null;
-		while (vtname== null) {
+
 			System.out.print("Please enter the type you wish to check: ");
 			vtname = readLine();
+		if(vtname.length()==0){
+			vtname = null;
 		}
-		String fromDate=null;
-		while (fromDate== null) {
-			System.out.print("Please enter the Date you wish to start: ");
-			fromDate = readLine();
+
+
+		String fromDateTime=null;
+
+			System.out.print("Please enter the Date and Time you wish to start: ");
+			fromDateTime = readLine();
+		if(fromDateTime.length()==0){
+			fromDateTime = null;
 		}
-		int fromTime=INVALID_INPUT;
-		while (fromTime== INVALID_INPUT) {
-			System.out.print("Please enter the Time you wish to start: ");
-			fromTime = readInteger(true);
+
+		String toDateTime=null;
+
+			System.out.print("Please enter the Date and Time you wish to return: ");
+			toDateTime = readLine();
+		if(toDateTime.length()==0){
+			toDateTime= null;
 		}
-		String toDate=null;
-		while (toDate== null) {
-			System.out.print("Please enter the Date you wish to return: ");
-			toDate = readLine();
+
+		System.out.print("Please enter the Location you wish to pick up the vehicle: ");
+		String location = readLine();
+		if(location.length()==0){
+			location= null;
 		}
-		int toTime=INVALID_INPUT;
-		while (toTime==INVALID_INPUT) {
-			System.out.print("Please enter the Time you wish to return: ");
-			toTime = readInteger(true);
-		}
-			delegate.viewtheNumofAvaliableVehicle(vtname,fromDate,fromTime,toDate,toTime);
+			delegate.vicenteNumbAvailableVehicle(vtname,fromDateTime,toDateTime,location);
 		}
 
 	

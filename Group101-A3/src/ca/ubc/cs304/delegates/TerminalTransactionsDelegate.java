@@ -2,8 +2,6 @@ package ca.ubc.cs304.delegates;
 
 import ca.ubc.cs304.model.BranchModel;
 
-import java.sql.Date;
-
 /**
  * This interface uses the delegation design pattern where instead of having
  * the TerminalTransactions class try to do everything, it will only
@@ -18,6 +16,6 @@ public interface TerminalTransactionsDelegate {
 	public void insertBranch(BranchModel model);
 	public void showBranch();
 	public void updateBranch(int branchId, String name);
-	public void viewtheNumofAvaliableVehicle(String vtname, String fromDate, Integer fromTime, String toDate, Integer toTime);
+	public void vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location);
 	public void terminalTransactionsFinished();
 }
