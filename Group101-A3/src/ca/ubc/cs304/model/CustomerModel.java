@@ -1,7 +1,7 @@
 package ca.ubc.cs304.model;
 
 public class CustomerModel {
-    private final Integer cellphone;
+    private final int cellphone;
     private final String name;
     private final String address;
     private final String dlicense;
@@ -13,7 +13,7 @@ public class CustomerModel {
         this.dlicense = dlicense;
     }
 
-    public Integer getCellphone() {
+    public int getCellphone() {
         return cellphone;
     }
 
