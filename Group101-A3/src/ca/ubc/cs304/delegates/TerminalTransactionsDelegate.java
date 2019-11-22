@@ -15,6 +15,7 @@ public interface TerminalTransactionsDelegate {
 
 	public void insertBranch(BranchModel model);
 	public void showBranch();
+	public void deleteBranch(int branchId);
 	public void updateBranch(int branchId, String name);
 	public void vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location);
 	public void terminalTransactionsFinished();

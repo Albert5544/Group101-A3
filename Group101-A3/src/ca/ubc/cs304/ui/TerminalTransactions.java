@@ -34,11 +34,12 @@ public class TerminalTransactions {
 		while (choice != 5) {
 			System.out.println();
 			System.out.println("1. Insert branch");
-			System.out.println("2. THIS ONE IS NEW!--->Search for the number of available vehicle");
+			System.out.println("2. Delete Branch");
 			System.out.println("3. Update branch name");
 			System.out.println("4. Show branch");
-			System.out.println("5. Quit");
-			System.out.print("Please choose one of the above 5 options: ");
+			System.out.println("5. View Available Vehicles");
+			System.out.println("10. Quit");
+			System.out.print("Please choose one of the above options: ");
 
 			choice = readInteger(false);
 
@@ -58,7 +59,10 @@ public class TerminalTransactions {
 				case 4:  
 					delegate.showBranch(); 
 					break;
-				case 5:
+
+					case 5:
+						handleViewVehiclesOption();
+				case 10:
 					handleQuitOption();
 					break;
 				default:
@@ -68,8 +72,19 @@ public class TerminalTransactions {
 			}
 		}		
 	}
-	
+
 	private void handleDeleteOption() {
+		int branchId = INVALID_INPUT;
+		while (branchId == INVALID_INPUT) {
+			System.out.print("Please enter the branch ID you wish to delete: ");
+			branchId = readInteger(false);
+			if (branchId != INVALID_INPUT) {
+				delegate.deleteBranch(branchId);
+			}
+		}
+	}
+	
+	private void handleViewVehiclesOption() {
 		String vtname = null;
 
 			System.out.print("Please enter the type you wish to check: ");
