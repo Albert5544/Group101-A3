@@ -1,21 +1,26 @@
 package ca.ubc.cs304.database;
 
-import ca.ubc.cs304.model.BranchModel;
+import ca.ubc.cs304.model.CustomerModel;
+import ca.ubc.cs304.model.RentModel;
+import ca.ubc.cs304.model.ReturnModel;
+import ca.ubc.cs304.model.VehicleModel;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * This class handles all database related transactions
  */
 public class DatabaseConnectionHandler {
-	//private static final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1522:stu";
-	private static final String ORACLE_URL = "jdbc:oracle:thin:@dbhost.students.cs.ubc.ca:1522:stu";
+	private static final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1522:stu";
+	//private static final String ORACLE_URL = "jdbc:oracle:thin:@dbhost.students.cs.ubc.ca:1522:stu";
 	private static final String EXCEPTION_TAG = "[EXCEPTION]";
 	private static final String WARNING_TAG = "[WARNING]";
 
 	private Connection connection = null;
-	
+
 	public DatabaseConnectionHandler() {
 		try {
 			// Load the Oracle JDBC driver
@@ -25,7 +30,7 @@ public class DatabaseConnectionHandler {
 			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
 		}
 	}
-	
+
 	public void close() {
 		try {
 			if (connection != null) {
@@ -40,41 +45,29 @@ public class DatabaseConnectionHandler {
 		try {
 			PreparedStatement ps = connection.prepareStatement("DELETE FROM branch WHERE branch_id = ?");
 			ps.setInt(1, branchId);
-			
+
 			int rowCount = ps.executeUpdate();
 			if (rowCount == 0) {
 				System.out.println(WARNING_TAG + " Branch " + branchId + " does not exist!");
 			}
-			
+
 			connection.commit();
-	
+
 			ps.close();
 		} catch (SQLException e) {
 			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
 			rollbackConnection();
 		}
 	}
-	public void viewtheNumofAvaliableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
+	public int viewtheNumofAvaliableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
+		int num=0;
 		try {
-
-
-//			PreparedStatement psV=connection.prepareStatement(" CREATE VIEW comDT AS(" +
-//					" SELECT r1.vtname AS vtname, TO_DATE(CONCAT(TO_CHAR(r1.fromDate,'DD-MON-YYYY'),r1.fromTime),'DD-MON-YYYY HH24:MI')AS fromDT, TO_DATE(CONCAT(TO_CHAR(r1.toDate,'DD-MON-YYYY'),r1.toTime),'DD-MON-YYYY HH24:MI')AS toDT "+
-//					" FROM Reservations r1) " );
-//			connection.commit();
-//			psV.close();
-			PreparedStatement ps = connection.prepareStatement(//"WITH" +
-
-																			"WITH bad(revn) AS( " +
-																			"SELECT r1.vtname" +
-																			" FROM Reservations r1 " +
+			PreparedStatement ps = connection.prepareStatement("WITH bad(revn) AS( " +
+																			"SELECT r1.vtname " +
+																			"FROM RESERVATIONS r1 " +
 																			"WHERE  ((TO_DATE(NVL(?,'01-JAN-9999 00:00'),'DD-MON-YYYY HH24:MI') BETWEEN r1.fromDateTime AND r1.toDateTime) " +
 																			"OR (TO_DATE(NVL(?,'01-JAN-9999 00:00'),'DD-MON-YYYY HH24:MI') BETWEEN r1.fromDateTime AND r1.toDateTime))) " +
-
-																			//"r1.fromTime>? OR <TO_DATE(?,'DD-MON-YYYY') OR r1.toTime<?) "); //AS temp" +
-//					                                                        "SELECT temp.c-cb.revn " +
-//																					"FROM COUNT(*)," +
-																					"SELECT COUNT(*)AS c FROM Vehicles v WHERE (v.vtname=? OR ? is null ) AND (v.location=? OR ? is null ) AND v.vtname NOT IN (SELECT revn FROM bad b)");
+					                                                        "SELECT COUNT(*) FROM Vehicle v WHERE (v.vtname=? OR ? is null ) AND (v.location=? OR ? is null ) AND v.vtname NOT IN (SELECT b.revn FROM bad b)");
 			if(vtname==null){
 			    ps.setNull(3, Types.VARCHAR);
                 ps.setNull(4, Types.VARCHAR);
@@ -102,16 +95,10 @@ public class DatabaseConnectionHandler {
 				ps.setString(6, location);
 			}
 
-
-
-
-			//ps.setInt(3,fromTime);
-
-		//	ps.setInt(5,toTime);
-
 			ResultSet rs= ps.executeQuery();
 			rs.next();
-			System.out.println("There are" +rs.getInt(1)+ "vehicles are available");
+			num=rs.getInt(1);
+		//	System.out.println("There are" +rs.getInt(1)+ "vehicles are available");
 
 			connection.commit();
 
@@ -120,20 +107,76 @@ public class DatabaseConnectionHandler {
 			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
 			rollbackConnection();
 		}
+		return num;
 	}
-	
-	public void insertBranch(BranchModel model) {
+
+
+	public ArrayList<VehicleModel> checkforDetail (String vtname, String fromDateTime, String toDateTime, String location){
+		ArrayList<VehicleModel> vs=new ArrayList<>();
 		try {
-			PreparedStatement ps = connection.prepareStatement("INSERT INTO branch VALUES (?,?,?,?,?)");
-			ps.setInt(1, model.getId());
-			ps.setString(2, model.getName());
-			ps.setString(3, model.getAddress());
-			ps.setString(4, model.getCity());
-			if (model.getPhoneNumber() == 0) {
-				ps.setNull(5, java.sql.Types.INTEGER);
-			} else {
-				ps.setInt(5, model.getPhoneNumber());
+
+			PreparedStatement ps = connection.prepareStatement("WITH bad(revn) AS( " +
+					"SELECT r1.vtname" +
+					" FROM Reservations r1 " +
+					"WHERE  ((TO_DATE(NVL(?,'01-JAN-9999 00:00'),'DD-MON-YYYY HH24:MI') BETWEEN r1.fromDateTime AND r1.toDateTime) " +
+					"OR (TO_DATE(NVL(?,'01-JAN-9999 00:00'),'DD-MON-YYYY HH24:MI') BETWEEN r1.fromDateTime AND r1.toDateTime))) " +
+					"SELECT * FROM VEHICLE v WHERE (v.vtname=? OR ? is null ) AND (v.location=? OR ? is null ) AND v.vtname NOT IN (SELECT revn FROM bad b)");
+			if(vtname==null){
+				ps.setNull(3, Types.VARCHAR);
+				ps.setNull(4, Types.VARCHAR);
+			}else{ps.setString(3, vtname);
+				ps.setString(4, vtname);}
+
+			if(fromDateTime==null){
+				ps.setNull(1, Types.VARCHAR);
+			}else ps.setString(1,fromDateTime);
+			if(toDateTime==null){
+				ps.setNull(2, Types.VARCHAR);
+			}else ps.setString(2, toDateTime);
+			if(location==null){
+				ps.setNull(5, Types.VARCHAR);
+				ps.setNull(6, Types.VARCHAR);
+			}else {ps.setString(5, location);
+				ps.setString(6, location);
 			}
+
+			ResultSet rs= ps.executeQuery();
+			System.out.println(rs.getRow());
+			while(rs.next()){
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+				VehicleModel v=new VehicleModel(rs.getString(1),rs.getInt(2),
+					rs.getString(3),rs.getString(4), formatter.format(rs.getDate(5)),
+					rs.getString(6),rs.getInt(7),rs.getString(8),
+					rs.getString(9),rs.getString(10));
+			vs.add(v);}
+			connection.commit();
+			ps.close();
+		} catch (SQLException e) {
+			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+			rollbackConnection();
+		}
+		return vs;
+	}
+
+	public void RentingAVehicle(RentModel rm) {
+		try {
+			PreparedStatement ps = connection.prepareStatement("INSERT INTO Rent VALUES (?,?,?,TO_DATE(?,'DD-MON-YYYY HH24:MI'),TO_DATE(?,'DD-MON-YYYY HH24:MI'),?,?,?,TO_DATE(?,'DD-MON-YYYY'),?)");
+			ps.setInt(1, rm.getRid());
+			ps.setString(2, rm.getVlicense());
+			ps.setString(3, rm.getDlicense());
+			ps.setString(4, rm.getFromDateTime());
+            ps.setString(5, rm.getToDateTime());
+            ps.setInt(6, rm.getOdometer());
+            ps.setString(7, rm.getCardName());
+            ps.setInt(8, rm.getCardNo());
+            ps.setString(9,rm.getExpDate());
+            if(rm.getConfNo()==null){ps.setNull(10, Types.INTEGER);}
+            else ps.setInt(10, rm.getConfNo());
+//			if (model.getCellphone() == 0) {
+//				ps.setNull(5, java.sql.Types.INTEGER);
+//			} else {
+//				ps.setInt(5, model.getPhoneNumber());
+//			}
 
 			ps.executeUpdate();
 			connection.commit();
@@ -144,42 +187,161 @@ public class DatabaseConnectionHandler {
 			rollbackConnection();
 		}
 	}
+    public void InsertCustomer(CustomerModel model) {
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO Customer VALUES (?,?,?,?,?)");
+            ps.setInt(1, model.getCellphone());
+            ps.setString(2, model.getName());
+            ps.setString(3, model.getAddress());
+            ps.setInt(4, model.getDlicense());
+//			if (model.getCellphone() == 0) {
+//				ps.setNull(5, java.sql.Types.INTEGER);
+//			} else {
+//				ps.setInt(5, model.getPhoneNumber());
+//			}
+
+            ps.executeUpdate();
+            connection.commit();
+
+            ps.close();
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            rollbackConnection();
+        }
+    }
+
+    public RentModel findResInfo(Integer confNo){
+        RentModel r=null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM RESERVATIONS r1 WHERE r1.CONFNO=?");
+            ps.setInt(1, confNo);
+
+            ps.executeUpdate();
+            ResultSet rs= ps.executeQuery();
+            if(!rs.next())
+            	return null;
+            connection.commit();
+
+
+
+            String dlicense=rs.getString("dlicense");
+
+            Date fromDateTimeD=rs.getDate("fromDateTime");
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
+            String fromDateTime = formatter.format(fromDateTimeD);
+
+            Date toDateTimeD=rs.getDate("toDateTime");
+            String toDateTime = formatter.format(toDateTimeD);
+            ps.close();
+            r=new RentModel(null,null,dlicense,fromDateTime,toDateTime,null,null,null,null,confNo);
+
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            rollbackConnection();
+        }
+        return r;
+
+    }
 	
-	public BranchModel[] getBranchInfo() {
-		ArrayList<BranchModel> result = new ArrayList<BranchModel>();
+	public CustomerModel[] getBranchInfo() {
+		ArrayList<CustomerModel> result = new ArrayList<CustomerModel>();
 		
 		try {
-			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM branch");
-		
-//    		// get info on ResultSet
-//    		ResultSetMetaData rsmd = rs.getMetaData();
-//
-//    		System.out.println(" ");
-//
-//    		// display column names;
-//    		for (int i = 0; i < rsmd.getColumnCount(); i++) {
-//    			// get column name and print it
-//    			System.out.printf("%-15s", rsmd.getColumnName(i + 1));
-//    		}
-			
-			while(rs.next()) {
-				BranchModel model = new BranchModel(rs.getString("branch_addr"),
-													rs.getString("branch_city"),
-													rs.getInt("branch_id"),
-													rs.getString("branch_name"),
-													rs.getInt("branch_phone"));
-				result.add(model);
-			}
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM RESERVATIONS r1 WHERE r1.CONFNO=?");
+//            ps.setInt(1, confNo);
 
-			rs.close();
-			stmt.close();
+            ps.executeUpdate();
+            ResultSet rs= ps.executeQuery();
+            if(!rs.next())
+                return null;
+            connection.commit();
+
+
 		} catch (SQLException e) {
 			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
 		}	
 		
-		return result.toArray(new BranchModel[result.size()]);
+		return result.toArray(new CustomerModel[result.size()]);
 	}
+
+
+	public RentModel returnV(ReturnModel rm){
+        RentModel r=null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM RENT r WHERE r.RID=?");
+            ps.setInt(1, rm.getRid());
+            ps.executeUpdate();
+            ResultSet rs= ps.executeQuery();
+            if(!rs.next())
+                return null;
+            String dlicense=rs.getString("dlicense");
+
+            Date fromDateTimeD=rs.getDate("fromDateTime");
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
+            String fromDateTime = formatter.format(fromDateTimeD);
+
+
+            Date toDateTimeD=rs.getDate("toDateTime");
+            String toDateTime = formatter.format(toDateTimeD);
+            Integer confNo=rs.getInt("CONFNO");
+            String vlicense=rs.getString("VLICENSE");
+            ps.close();
+            r=new RentModel(rm.getRid(),vlicense,dlicense,fromDateTime,toDateTime,null,null,null,null,confNo);
+
+            PreparedStatement psD = connection.prepareStatement("INSERT INTO RETURN r VALUES (?,TO_DATE(?,'DD-MON-YYYY HH24:MI'),?,?,?)");
+            psD.setInt(1, rm.getRid());
+            psD.setString(2, rm.getDatetime());
+            psD.setInt(3, rm.getOdometer());
+            psD.setInt(4, rm.getFullTank());
+
+            psD.setInt(5, rm.getValue());
+            psD.executeUpdate();
+            
+
+
+
+
+            connection.commit();
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+        }
+
+        return r;
+
+
+    }
+
+    public ArrayList<VehicleModel> DRentalB(String location,String city,String day){
+	    ArrayList<VehicleModel> vms=new ArrayList<VehicleModel>();
+        System.out.println(day);
+        try{PreparedStatement ps = connection.prepareStatement("SELECT * FROM VEHICLE v " +
+                                                                "WHERE v.LOCATION=? AND v.city=?" +
+                                                                " AND v.VLICENSE IN (SELECT r.VLICENSE FROM RENT r WHERE TO_DATE(?,'DD-MON-YYYY')=trunc(FROMDATETIME, 'DD'))");
+        ps.setString(1, location);
+        ps.setString(2, city);
+        ps.setString(3, day);
+        ps.executeUpdate();
+        ResultSet rs= ps.executeQuery();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+        while(rs.next()){
+            System.out.println(rs.getString(1));
+            VehicleModel vm=new VehicleModel(rs.getString(1),rs.getInt(2),rs.getString(3),
+                                            rs.getString(4),formatter.format(rs.getDate(5)),rs.getString(6),
+                                            rs.getInt(7),rs.getString(8),rs.getString(9),
+                                            rs.getString(10));
+            vms.add(vm);
+
+        }
+            connection.commit();
+        }
+        catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+        }
+        return vms;
+
+    }
+
+
 	
 	public void updateBranch(int id, String name) {
 		try {

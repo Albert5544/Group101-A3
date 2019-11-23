@@ -3,9 +3,14 @@ package ca.ubc.cs304.controller;
 import ca.ubc.cs304.database.DatabaseConnectionHandler;
 import ca.ubc.cs304.delegates.LoginWindowDelegate;
 import ca.ubc.cs304.delegates.TerminalTransactionsDelegate;
-import ca.ubc.cs304.model.BranchModel;
+import ca.ubc.cs304.model.CustomerModel;
+import ca.ubc.cs304.model.RentModel;
+import ca.ubc.cs304.model.ReturnModel;
+import ca.ubc.cs304.model.VehicleModel;
 import ca.ubc.cs304.ui.LoginWindow;
 import ca.ubc.cs304.ui.TerminalTransactions;
+
+import java.util.ArrayList;
 
 /**
  * This is the main controller class that will orchestrate everything.
@@ -58,8 +63,8 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 	 * 
 	 * Insert a branch with the given info
 	 */
-    public void insertBranch(BranchModel model) {
-    	dbHandler.insertBranch(model);
+    public void insertBranch(CustomerModel model) {
+//    	dbHandler.RentingAVehicle(model);
     }
 
     /**
@@ -82,10 +87,30 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
     }
 
 	@Override
-	public void vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
-		dbHandler.viewtheNumofAvaliableVehicle(vtname, fromDateTime, toDateTime,location);
+	public int vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
+		return dbHandler.viewtheNumofAvaliableVehicle(vtname, fromDateTime, toDateTime,location);
+
 	}
 
+	@Override
+	public void RentingAVehicle(RentModel rm) {
+		dbHandler.RentingAVehicle(rm);
+	}
+
+	@Override
+	public ArrayList<VehicleModel> DRentalB(String location, String city, String day) {
+		return dbHandler.DRentalB(location,city,day);
+	}
+
+	@Override
+	public ArrayList<VehicleModel> checkforDetail(String vtname, String fromDateTime, String toDateTime, String location) {
+		return dbHandler.checkforDetail (vtname,fromDateTime, toDateTime, location);
+	}
+
+	@Override
+	public RentModel findRevInfo(Integer confNo) {
+		return dbHandler.findResInfo(confNo);
+	}
 
 
 	/**
@@ -94,28 +119,28 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
 	 * Displays information about varies bank branches.
 	 */
     public void showBranch() {
-    	BranchModel[] models = dbHandler.getBranchInfo();
-    	
-    	for (int i = 0; i < models.length; i++) {
-    		BranchModel model = models[i];
-    		
-    		// simplified output formatting; truncation may occur
-    		System.out.printf("%-10.10s", model.getId());
-    		System.out.printf("%-20.20s", model.getName());
-    		if (model.getAddress() == null) {
-    			System.out.printf("%-20.20s", " ");
-    		} else {
-    			System.out.printf("%-20.20s", model.getAddress());
-    		}
-    		System.out.printf("%-15.15s", model.getCity());
-    		if (model.getPhoneNumber() == 0) {
-    			System.out.printf("%-15.15s", " ");
-    		} else {
-    			System.out.printf("%-15.15s", model.getPhoneNumber());
-    		}
-    		
-    		System.out.println();
-    	}
+//    	CustomerModel[] models = dbHandler.getBranchInfo();
+//
+//    	for (int i = 0; i < models.length; i++) {
+//    		CustomerModel model = models[i];
+//
+//    		// simplified output formatting; truncation may occur
+//    		System.out.printf("%-10.10s", model.getId());
+//    		System.out.printf("%-20.20s", model.getName());
+//    		if (model.getAddress() == null) {
+//    			System.out.printf("%-20.20s", " ");
+//    		} else {
+//    			System.out.printf("%-20.20s", model.getAddress());
+//    		}
+//    		System.out.printf("%-15.15s", model.getCity());
+//    		if (model.getPhoneNumber() == 0) {
+//    			System.out.printf("%-15.15s", " ");
+//    		} else {
+//    			System.out.printf("%-15.15s", model.getPhoneNumber());
+//    		}
+//
+//    		System.out.println();
+//    	}
     }
 	
     /**
@@ -130,7 +155,12 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
     	
     	System.exit(0);
     }
-    
+
+	@Override
+	public RentModel returnV(ReturnModel rm) {
+		return dbHandler.returnV(rm);
+	}
+
 	/**
 	 * Main method called at launch time
 	 */
