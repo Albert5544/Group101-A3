@@ -387,11 +387,11 @@ public class TerminalTransactions extends JFrame implements ActionListener {
             JLabel vtname=new JLabel("Vehicle Type name:   "+vtname);
             contentPane.removeAll();
             contentPane.setLayout(new GridLayout(5,1,5,5));
-            add(receipt);
             add(confNum);
+            add(dlicense);
             add(dateBegin);
             add(dateEnd);
-            add(vlicenseR);
+            add(vtname);
             repaint();
             validate();
         }
