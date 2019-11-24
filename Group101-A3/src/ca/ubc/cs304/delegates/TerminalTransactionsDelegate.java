@@ -1,6 +1,8 @@
 package ca.ubc.cs304.delegates;
 
-import ca.ubc.cs304.model.BranchModel;
+import ca.ubc.cs304.model.*;
+
+import java.util.ArrayList;
 
 /**
  * This interface uses the delegation design pattern where instead of having
@@ -13,9 +15,21 @@ import ca.ubc.cs304.model.BranchModel;
  */
 public interface TerminalTransactionsDelegate {
 
-	public void insertBranch(BranchModel model);
+	public void insertBranch(CustomerModel model);
 	public void showBranch();
 	public void updateBranch(int branchId, String name);
-	public void vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location);
+	public int vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location);
+
+
+	public RentModel findRevInfo(Integer cofNo);
 	public void terminalTransactionsFinished();
-}
+	public RentModel returnV(ReturnModel rm);
+
+	public void RentingAVehicle(RentModel rm);
+	public ArrayList<VehicleModel> DRentalB(String location,String city,String day);
+	public ArrayList<Model[]> DReturnB(String location, String city, String day);
+    public ArrayList<VehicleModel> checkforDetail (String vtname, String fromDateTime, String toDateTime, String location);
+	public ArrayList<BranchModel> findAllBranch();
+	public boolean ifExistB(String Location, String City);
+
+	}
