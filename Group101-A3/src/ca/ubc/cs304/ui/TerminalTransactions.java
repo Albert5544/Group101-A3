@@ -148,12 +148,14 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 		this.setSize(600, 300);
 		contentPane.removeAll();
 		JLabel options1=new JLabel("1. THIS ONE IS NEW!--->Search for the number of available vehicle");
+		JLabel options2=new JLabel("2. THIS ONE IS NEW!--->Make a reservation");
 		input=new JTextField();
 		contentPane.add(input);
 		JButton ok_function=new JButton("OK");
 		ok_function.addActionListener(this);
 		ok_function.setActionCommand("ok_function");
 		contentPane.add(options1);
+		contentPane.add(options2);
 		contentPane.add(input);
 		contentPane.add(ok_function);
 
@@ -161,7 +163,6 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 		contentPane.repaint();
 
 	}
-
 
 
 
@@ -175,8 +176,11 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 						checkforAva();
 						break;
 					case 2:
-						handleQuitOption();
+                        makeReservation();
 						break;
+                    case 3:
+                        handleQuitOption();
+                        break;
 					default:
 						System.out.println(WARNING_TAG + " The number that you entered was not a valid option.");
 						break;
@@ -207,7 +211,7 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 				if (choice != INVALID_INPUT) {
 				switch (choice) {
 					case 1:
-
+					    dailyRentalReport();
 						break;
 					case 2:
 						dailyRentalReportBranch();
@@ -344,6 +348,56 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 	JTextField aToDT=new JTextField();
 	JLabel Llocation=new JLabel("Please enter the Location you wish to pick up the vehicle: ");
 	JTextField aLocation=new JTextField();
+
+    ///////////////////////makeReservation/////////////////////////////
+//    private void makeReservation(){
+//        contentPane.removeAll();
+//
+//        JButton okButton = new JButton("ok");
+//        okButton.setActionCommand("ok_check");
+//        okButton.addActionListener(this);
+//        add(vtname);
+//        add(dlicense);
+//        add(fromDateTime);
+//        add(toDateTime);
+//        add(okButton);
+//        add(homeButtom);
+//        setVisible(true);
+//        repaint();
+//        validate();
+//    }
+
+
+    public void makeReservation(ReservationModel ReservationModel) {
+        ReservationModel rm = delegate.makeReservation(ReservationModel);
+        if (rm == null) {
+            JOptionPane.showMessageDialog(new JPanel(), "Cannot make the reservation","ERROR", JOptionPane.WARNING_MESSAGE);
+        } else {
+            int confNo=rm.getConfNo();
+            String fromDateTime=rm.getFromDateTime();
+            String toDateTime=rm.getToDateTime();
+            String vtname = rm.getVtname();
+            int dlicense=rm.getDlicense();
+            JLabel reservationReceipt=new JLabel("Reservation Receipt");
+            receipt.setFont(new Font("Segoe UI Light", Font.BOLD, 30));
+            JLabel confNum=new JLabel("Confirmation Number:   "+String.valueOf(confNo));
+            JLabel dlicense=new JLbel("Drive License Numver:   "+String.valueOf(dlicense));
+            JLabel dateBegin=new JLabel("Begin at:   "+fromDateTime);
+            JLabel dateEnd=new JLabel("Need to return at:   "+toDateTime);
+            JLabel vtname=new JLabel("Vehicle Type name:   "+vtname);
+            contentPane.removeAll();
+            contentPane.setLayout(new GridLayout(5,1,5,5));
+            add(receipt);
+            add(confNum);
+            add(dateBegin);
+            add(dateEnd);
+            add(vlicenseR);
+            repaint();
+            validate();
+        }
+    }
+
+    ///////////////////////makeReservation/////////////////////////////
 
 
 
@@ -620,6 +674,60 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 	}
 
 
+
+	//  dailyRentalReport///////////////////////////////////////////////////////////////////////////////
+    public void dailyRentalReport(){
+        contentPane.removeAll();
+        contentPane.add(day);
+        JButton ok=new JButton("OK");
+        ok.setActionCommand("ok_rental_all");
+        ok.addActionListener(this);
+        contentPane.add(ok);
+        contentPane.repaint();
+        validate();
+    }
+
+    Box vBoxReport = Box.createVerticalBox();
+
+	public void dailyRentalReport_helper(String daty){
+        ArrayList<BranchModel> bms=delegate.findAllBranch();
+        setLayout(new FlowLayout());
+
+        int totalALL[];
+        int totalRev=0;
+        int totalNum=0;
+        for (BranchModel bm : bms){
+            totalALL=dailyRentalReportBranch_Helper(bm.getLocation(),bm.getCity(),day);
+            totalRev+=totalALL[0];
+            totalNum+=totalALL[1];
+        }
+        JLabel grandTotalRev=new JLabel("The grand totals revenue for the day is "+totalRev+"    ");
+        grandTotalRev.setFont(new java.awt.Font("Segoe UI Light",Font.BOLD, 40));
+        contentPane.add(grandTotalRev);
+
+        JLabel grandTotalNum=new JLabel("The grand totals number of rental for the day is "+totalNum);
+        grandTotalNum.setFont(new java.awt.Font("Segoe UI Light",Font.BOLD, 40));
+        contentPane.add(grandTotalRev);
+        contentPane.add(grandTotalNum);
+
+        JPanel ReportPane=new JPanel();
+
+
+
+        ReportPane.setSize(1200,90);
+        vBoxReport.setSize(1200,9000);
+        JScrollPane scrollPane=new JScrollPane(vBoxReport,ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setSize(1300,500);
+        scrollPane.setWheelScrollingEnabled(true);
+        scrollPane.setViewportView(ReportPane);
+        ReportPane.add(vBoxReport);
+        contentPane.add(scrollPane);
+        contentPane.repaint();
+    }
+
+
+    ////// dailyRentalReport////////////////////////////////////////////////////////////////////////////////////////////
 	public void dailyRentalReportBranch_Helper(String location,String city,String day){
 		vBoxReport.removeAll();
 		if(!delegate.ifExistB(location,city)){
@@ -652,7 +760,6 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 		validate();
 
 	}
-
 
 
 	public int[] dailyReturnReportBranch_Helper(String location,String city,String day){
@@ -765,21 +872,6 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 		return result;
 	}
 
-
-//	private Date readDate() {
-//		java.util.Date resultUtil;
-//		java.sql.Date result = null;
-//		try {
-//			SimpleDateFormat format1 = new SimpleDateFormat("dd-MM-yyyy");
-//			resultUtil = format1.parse(bufferedReader.readLine());
-//			result=new java.sql.Date(resultUtil.getTime());
-//		} catch (IOException e) {
-//			System.out.println(EXCEPTION_TAG + " " + e.getMessage());
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-//		return result;
-//	}
 @Override
 public void actionPerformed(ActionEvent e) {
 	    switch (e.getActionCommand()){
@@ -820,6 +912,8 @@ public void actionPerformed(ActionEvent e) {
 			dailyReturnReportBranch_Helper(ansB.getText(),ansBC.getText(),ansDay.getText());
 			break;
 			case "ok_return_all":dailyReturnReport_helper(day.getText());
+			break;
+            case "ok_rental_all":dailyRentalReport_helper(day.getText());
 
         }
 }

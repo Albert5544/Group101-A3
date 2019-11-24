@@ -31,5 +31,7 @@ public interface TerminalTransactionsDelegate {
     public ArrayList<VehicleModel> checkforDetail (String vtname, String fromDateTime, String toDateTime, String location);
 	public ArrayList<BranchModel> findAllBranch();
 	public boolean ifExistB(String Location, String City);
-
+//    public void  makeReservation(int confno, String vtname, int dlicense, String fromDateTime, String toDateTime);
+    public void  makeReservation(ReservationModel rm);
+    public boolean isValidReservation(String location, String vtname, String fromDateTime, String toDateTime);
 	}

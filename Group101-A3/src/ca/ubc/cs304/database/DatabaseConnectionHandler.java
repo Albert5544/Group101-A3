@@ -39,6 +39,38 @@ public class DatabaseConnectionHandler {
 		}
 	}
 
+    public void makeReservation(int confno, String vtname, int dlicense, String fromDateTime, String toDateTime) {
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO Reservations VALUES (?,?,?,TO_DATE(?,'DD-MON-YYYY HH24:MI'),TO_DATE(?,'DD-MON-YYYY HH24:MI'))");
+            ps.setInt(1, confno);
+            ps.setString(2, vtname);
+            ps.setInt(3, cellphone);
+            ps.setTime(4, fromDate);
+            ps.setTimestamp(5, toDate);
+
+            ps.executeUpdate();
+            connection.commit();
+            ps.close();
+            System.out.println("You've made a reservation for " + fromDate + " to " + toDate);
+            if (vtname != null) {
+                System.out.println("Vehicle Type: " + vtname);
+            }
+            System.out.println("Your confirmation number is " + confno);
+        } else {
+            System.out.println("Unable to make reservation. Please try again.");
+        }
+    } catch (SQLException e) {
+        System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+        rollbackConnection();
+    }
+}
+
+
+    public boolean isValidReservation(String location, String vtname, String fromDateTime, String toDateTime){
+        viewtheNumofAvilableVehicle(location, vtname, startDateTimestamp, endDate) > 0;
+    }
+
+
 	public void deleteBranch(int branchId) {
 		try {
 			PreparedStatement ps = connection.prepareStatement("DELETE FROM branch WHERE branch_id = ?");

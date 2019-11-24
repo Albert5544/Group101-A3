@@ -83,7 +83,21 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
     	dbHandler.updateBranch(branchId, name);
     }
 
-	@Override
+
+
+    public void makeReservation(int confno, String vtname, int dlicense, String fromDateTime, String toDateTime) {
+        dbHandler.makeReservation(confno, vtname, dlicense, fromDateTime, toDateTime);
+    }
+
+
+
+    public boolean isValidReservation(String location, String vtname, String fromDateTime, String toDateTime){
+        dbHandler.viewtheNumofAvilableVehicle(location, vtname, startDateTimestamp, endDate);
+    }
+
+
+
+    @Override
 	public int vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
 		return dbHandler.viewtheNumofAvaliableVehicle(vtname, fromDateTime, toDateTime,location);
 
