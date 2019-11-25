@@ -45,8 +45,8 @@ public class DatabaseConnectionHandler {
             ps.setInt(1, confno);
             ps.setString(2, vtname);
             ps.setInt(3, cellphone);
-            ps.setTime(4, fromDate);
-            ps.setTimestamp(5, toDate);
+            ps.seString(4, fromDate);
+            ps.setTime(5, toDate);
 
             ps.executeUpdate();
             connection.commit();
@@ -216,13 +216,16 @@ public class DatabaseConnectionHandler {
 			rollbackConnection();
 		}
 	}
-    public void InsertCustomer(CustomerModel model) {
+
+
+    //////////////////////////customerExists/////////////////
+    public void createCustomer(CustomerModel model) {
         try {
             PreparedStatement ps = connection.prepareStatement("INSERT INTO Customer VALUES (?,?,?,?,?)");
-            ps.setInt(1, model.getCellphone());
+            ps.setInt(1, model.getDlicense());
             ps.setString(2, model.getName());
             ps.setString(3, model.getAddress());
-            ps.setInt(4, model.getDlicense());
+            ps.setInt(4,model.getCellphone());
 
 
             ps.executeUpdate();
@@ -235,6 +238,36 @@ public class DatabaseConnectionHandler {
             rollbackConnection();
         }
     }
+
+
+    public boolean customerExists(int dlicense) {
+        boolean exists = false;
+        int count = 0;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT COUNT(*) FROM Customer WHERE dLicense = ?");
+            ps.setInt(1, dlicense);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                count = rs.getInt(1);
+            }
+            connection.commit();
+            ps.close();
+            if (count == 1) {
+                exists = true;
+            } else if (count == 0) {
+                exists = false;
+            }
+        } catch (SQLException e) {
+            System.out.println(EXCEPTION_TAG + " " + e.getMessage());
+            rollbackConnection();
+            exists = false;
+        }
+        return exists;
+    }
+
+
+    //////////////////////////customerExists/////////////////
 
     public RentModel findResInfo(Integer confNo){
         RentModel r=null;

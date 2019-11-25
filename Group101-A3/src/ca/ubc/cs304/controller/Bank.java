@@ -94,9 +94,16 @@ public class Bank implements LoginWindowDelegate, TerminalTransactionsDelegate {
     public boolean isValidReservation(String location, String vtname, String fromDateTime, String toDateTime){
         dbHandler.viewtheNumofAvilableVehicle(location, vtname, startDateTimestamp, endDate);
     }
+//////////////////////CreateCustomer///////////////////
+    public void createCustomer(CustomerModel cm){
+        dbHandler.createCustomer(cm);
+    }
 
+    public boolean customerExists(int dlicense){
+        return dbHandler.customerExists(dlicense);
+    }
 
-
+    //////////////////////CreateCustomer///////////////////
     @Override
 	public int vicenteNumbAvailableVehicle(String vtname, String fromDateTime, String toDateTime, String location) {
 		return dbHandler.viewtheNumofAvaliableVehicle(vtname, fromDateTime, toDateTime,location);

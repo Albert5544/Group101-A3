@@ -34,4 +34,8 @@ public interface TerminalTransactionsDelegate {
 //    public void  makeReservation(int confno, String vtname, int dlicense, String fromDateTime, String toDateTime);
     public void  makeReservation(ReservationModel rm);
     public boolean isValidReservation(String location, String vtname, String fromDateTime, String toDateTime);
-	}
+//customer
+    public void createCustomer(CustomerModel model);
+    public boolean customerExists(dlicense);
+
+}

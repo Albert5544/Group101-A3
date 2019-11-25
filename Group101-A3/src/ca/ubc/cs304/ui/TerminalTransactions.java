@@ -399,7 +399,67 @@ public class TerminalTransactions extends JFrame implements ActionListener {
 
     ///////////////////////makeReservation/////////////////////////////
 
+    ///////////////////////createAccount/////////////////////////////
+    private CustomerModel createAccount() {
+        int dLicense, cellphone;
+        String name, address;
+        while (dLicense == null) {
+            System.out.print("Please enter your Driver's License number: ");
+            dLicense = getlicense(false);
+        }
+        while (delegate.customerExists(dLicense)) {
+            System.out.print("Licence number already exists. Please enter a different licence number: ");
+            dLicense = getLicense(false);
+        }
+        System.out.print("Let's create your customer account. Please enter your name: ");
+        name = readLine();
+        while (cell == null) {
+            System.out.print("Cellphone number: ");
+            cell = readLong(false);
+        }
+        System.out.print("Please enter your address: ");
+        address = readLine().trim();
+        CustomerModel customer = new CustomerModel(cell, name, address, dLicense);
+        delegate.insertCustomer(customer);
+        System.out.println();
+        System.out.print("Customer account created");
+        System.out.println();
+        return customer;
+    }
 
+
+    private CustomerModel createAccount(CustomerModel CustomerModel){
+        CustomerModel cm = delegate.insertCustomer(CustomerModel);
+        if (cm == null) {
+            JOptionPane.showMessageDialog(new JPanel(), "Cannot make the create the Account","ERROR", JOptionPane.WARNING_MESSAGE);
+        }
+
+        if(delegate.customerExist(dlicense)) {
+            System.out.print("Licence number already exists. Please enter a different licence number: ");
+
+            ////should handle to return to the login in.
+        } else{
+            int dlicense=cm.getDlicense();
+            String cname=cm.getName();
+            String address=cm.getAddress();
+            int cellphone=rm.getCellphone();
+            JLabel accountReceipt=new JLabel("New Account Receipt");
+            receipt.setFont(new Font("Segoe UI Light", Font.BOLD, 30));
+            JLabel name=new JLbel("Customer Name:   "+cname)
+            JLabel dlicense=new JLbel("Drive License Numver:   "+String.valueOf(dlicense));
+            JLabel address=new JLabel("Address:   "+address);
+            JLabel cellphone=new JLabel("cellphone number:   "+String.valueOf(cellphone));
+            contentPane.removeAll();
+            contentPane.setLayout(new GridLayout(5,1,5,5));
+            add(name);
+            add(dlicense);
+            add(address);
+            add(cellphone);
+            repaint();
+            validate();
+        }
+    }
+    ///////////////////////createAccount/////////////////////////////
 
 	private void checkforAva() {
 		contentPane.removeAll();
